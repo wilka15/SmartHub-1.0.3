@@ -22,7 +22,18 @@ async function sendMessage() {
     });
 
     const data = await response.json();
-    const ai = data.output[0].content[0].text;
+    let ai = "";
+
+if (data.output) {
+    ai = data.output[0]?.content[0]?.text || "";
+}
+else if (data.choices) {
+    ai = data.choices[0]?.message?.content || "";
+}
+else {
+    ai = "Ошибка: сервер вернул неизвестный формат ответа.";
+}
+
 
     addMessage(ai, "ai");
     lastAIMessage = ai;
