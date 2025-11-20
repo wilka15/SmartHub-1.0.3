@@ -1,7 +1,9 @@
 const API_URL = "https://openai-proxy-ucgy.onrender.com/v1/responses";
-let lastAIMessage = "";
 
-/* ---------- ОТПРАВКА СООБЩЕНИЯ ---------- */
+let lastAIMessage = "";
+let userAvatar = localStorage.getItem("userAvatar") || "user1.png";
+
+/* ------------ ОТПРАВКА ------------ */
 async function sendMessage() {
     const input = document.getElementById("userInput");
     const text = input.value.trim();
@@ -26,17 +28,29 @@ async function sendMessage() {
     lastAIMessage = ai;
 }
 
-/* ---------- ДОБАВЛЕНИЕ СООБЩЕНИЙ ---------- */
+/* ------------ ДОБАВЛЕНИЕ СООБЩЕНИЙ ------------ */
 function addMessage(text, role) {
     const chat = document.getElementById("chat");
-    const div = document.createElement("div");
-    div.className = "msg " + role;
-    div.textContent = text;
-    chat.appendChild(div);
+
+    const wrap = document.createElement("div");
+    wrap.className = "msg " + role;
+
+    const avatar = document.createElement("img");
+    avatar.className = "msg-avatar";
+    avatar.src = role === "user" ? userAvatar : "avatar-ai.png";
+
+    const bubble = document.createElement("div");
+    bubble.className = "bubble";
+    bubble.textContent = text;
+
+    wrap.appendChild(avatar);
+    wrap.appendChild(bubble);
+
+    chat.appendChild(wrap);
     chat.scrollTop = chat.scrollHeight;
 }
 
-/* ---------- ОЗВУЧКА ---------- */
+/* ------------ ОЗВУЧКА ------------ */
 function speakLast() {
     if (!lastAIMessage) return;
     speak(lastAIMessage);
@@ -47,20 +61,19 @@ function speak(text) {
     const voiceSelect = document.getElementById("voiceSelect").value;
 
     utter.lang = "ru-RU";
-    utter.pitch = 1;
 
-    // выбор голоса
     const voices = speechSynthesis.getVoices();
+
     if (voiceSelect === "male") {
-        utter.voice = voices.find(v => v.name.includes("Male")) || null;
+        utter.voice = voices.find(v => v.name.includes("male")) || null;
     } else {
-        utter.voice = voices.find(v => v.name.includes("Female")) || null;
+        utter.voice = voices.find(v => v.name.includes("female")) || null;
     }
 
     speechSynthesis.speak(utter);
 }
 
-/* ---------- ГОЛОСОВОЙ ВВОД ---------- */
+/* ------------ ГОЛОСОВОЙ ВВОД ------------ */
 function voiceInput() {
     const Rec = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!Rec) return alert("Голосовой ввод не поддерживается.");
@@ -74,14 +87,26 @@ function voiceInput() {
     };
 }
 
-/* ---------- ТЕМЫ ---------- */
+/* ------------ ТЕМА ------------ */
 function toggleTheme() {
     const body = document.body;
     body.classList.toggle("light");
     body.classList.toggle("dark");
 }
 
-/* ---------- МЕНЮ НАСТРОЕК ---------- */
+/* ------------ МЕНЮ ------------ */
 function toggleSettings() {
     document.getElementById("settingsPanel").classList.toggle("show");
 }
+
+/* ------------ АВАТАР ------------ */
+function setUserAvatar(file) {
+    userAvatar = file;
+    localStorage.setItem("userAvatar", file);
+    document.getElementById("avatarPreview").src = file;
+}
+
+/* Загружаем аватар при старте */
+document.addEventListener("DOMContentLoaded", () => {
+    document.getElementById("avatarPreview").src = userAvatar;
+});
