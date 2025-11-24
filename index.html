@@ -301,7 +301,8 @@ async function sendToProxy(text){
       saveAndRenderMessage('Ошибка сервера: ' + resp.status + ' ' + resp.statusText, 'ai');
       return;
     }
-    const data = await resp.json();
+    console.log("Ответ от сервера:", data);
+
     // support both old choices and responses.output
     let answer = null;
     if(data.output && Array.isArray(data.output) && data.output[0] && data.output[0].content){
